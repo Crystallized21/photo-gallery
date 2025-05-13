@@ -127,7 +127,7 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick, index}: ImageContai
             blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIiAvPjwvc3ZnPg=="
           />
           <motion.div
-            className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"
+            className="absolute inset-0 bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"
             whileHover={{
               backgroundColor: `${dominantColour}33`, // add transparency to the colour
             }}
