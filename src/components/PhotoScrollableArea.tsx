@@ -10,13 +10,13 @@ const galleryImages = [
   {
     id: 1,
     aspectRatio: "4/3",
-    src: "/placeholder.svg?height=800&width=1067&text=Photo 1",
+    src: "https://images.unsplash.com/photo-1744029829181-ad19c2ee248b?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     alt: "Gallery photo 1",
   },
   {
     id: 2,
     aspectRatio: "1/1",
-    src: "/placeholder.svg?height=800&width=800&text=Photo 2",
+    src: "https://images.unsplash.com/photo-1744132813623-5ce3c521eef4?q=80&w=3136&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     alt: "Gallery photo 2",
   },
   {

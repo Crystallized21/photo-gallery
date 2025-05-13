@@ -173,7 +173,7 @@ export function ImageCarousel({images, currentIndex, isOpen, onClose}: ImageCaro
             <div className="relative w-full h-full flex items-center justify-center p-8 overflow-hidden">
               <AnimatePresence initial={false} custom={direction}>
                 <motion.div
-                  key={index}
+                  key={images[index].id}
                   custom={direction}
                   variants={slideVariants}
                   initial="enter"
