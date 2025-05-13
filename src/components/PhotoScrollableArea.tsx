@@ -1,6 +1,9 @@
-import React from 'react';
+"use client"
+
+import React, {useState} from 'react';
 import ImageContainer from "@/components/ImageContainer";
 import {ThemeModeToggle} from "@/components/ThemeModeToggle";
+import {ImageCarousel} from "@/components/ImageCarousel";
 
 // sample image data with different aspect ratios
 const galleryImages = [
@@ -103,6 +106,14 @@ const galleryImages = [
 ]
 
 const PhotoScrollableArea = () => {
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const openCarousel = (index: number) => {
+    setCurrentImageIndex(index);
+    setCarouselOpen(true);
+  }
+
   return (
     <div
       className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -124,21 +135,29 @@ const PhotoScrollableArea = () => {
             Hope you enjoy viewing my photos.
           </p>
         </div>
-
-        <div className="flex flex-wrap gap-4 w-full justify-center">
-          {galleryImages.map((image) => (
-            <ImageContainer
-              key={image.id}
-              id={image.id}
-              aspectRatio={image.aspectRatio}
-              src={image.src || "/placeholder.svg"}
-              alt={image.alt}
-            />
-          ))}
-        </div>
       </div>
+
+      <div className="flex flex-wrap gap-4 w-full justify-center">
+        {galleryImages.map((image, index) => (
+          <ImageContainer
+            key={image.id}
+            id={image.id}
+            aspectRatio={image.aspectRatio}
+            src={image.src || "/placeholder.svg"}
+            alt={image.alt}
+            onClick={() => openCarousel(index)}
+          />
+        ))}
+      </div>
+
+      <ImageCarousel
+        currentIndex={currentImageIndex}
+        images={galleryImages}
+        isOpen={carouselOpen}
+        onClose={() => setCarouselOpen(false)}
+      />
     </div>
-  )
+  );
 };
 
 export default PhotoScrollableArea;

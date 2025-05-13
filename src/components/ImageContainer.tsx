@@ -70,17 +70,27 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProp
   return (
     <div
       ref={imgRef}
-      className="relative overflow-hidden cursor-pointer transition-all duration-300"
+      className="relative overflow-hidden rounded-lg cursor-pointer transition-all duration-300"
       style={{
         flexBasis: getFlexBasis(),
         flexGrow: 1,
         minWidth: "300px",
-        // fixed maximum width constraint regardless of original image dimensions
         maxWidth: "500px",
         boxShadow: isHovered ? `0 0 20px ${dominantColor}` : "none",
         zIndex: isHovered ? 10 : 1,
         transform: isHovered ? "scale(1.02)" : "scale(1)",
       }}
+      onClick={onClick}
+      onKeyDown={e => {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* this div maintains the aspect ratio, please help me */}
       <div style={{paddingTop}}/>
@@ -97,7 +107,7 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProp
             placeholder="blur"
             blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIiAvPjwvc3ZnPg=="
           />
-          <ColourExtractor src={src} onExtract={handleColourExtract} />
+          <ColourExtractor src={src} onExtract={handleColourExtract}/>
         </>
       ) : (
         <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-gray-800 animate-pulse"/>
