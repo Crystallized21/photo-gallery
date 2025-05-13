@@ -94,7 +94,6 @@ export function ImageCarousel({images, currentIndex, isOpen, onClose}: ImageCaro
       },
     }),
   }
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -196,9 +195,9 @@ export function ImageCarousel({images, currentIndex, isOpen, onClose}: ImageCaro
 
             {/* image counter */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.3 }}
+              initial={{opacity: 0, y: 20}}
+              animate={{opacity: 1, y: 0}}
+              transition={{delay: 0.4, duration: 0.3}}
               className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white"
             >
               {index + 1} / {images.length}
