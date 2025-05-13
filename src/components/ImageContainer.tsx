@@ -2,18 +2,22 @@
 
 import {useEffect, useRef, useState} from "react"
 import Image from "next/image"
+import {ColourExtractor} from "@/components/ColourExtractor";
 
 interface ImageContainerProps {
   id: number
   aspectRatio: string
   src: string
   alt: string
+  onClick: () => void
 }
 
 // lazyimage function with intersection observer for lazy loading
 // p.s. if you're reading, you better not have any ulterior motives...
-const ImageContainer = ({id, aspectRatio, src, alt}: ImageContainerProps) => {
+const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProps) => {
   const [isInView, setIsInView] = useState(false)
+  const [dominantColor, setDominantColor] = useState("rgba(0, 0, 0, 0)")
+  const [isHovered, setIsHovered] = useState(false)
   const imgRef = useRef<HTMLDivElement>(null)
 
   // convert aspect ratio string to style
@@ -58,32 +62,43 @@ const ImageContainer = ({id, aspectRatio, src, alt}: ImageContainerProps) => {
     }
   }, [])
 
+  // handle colour extraction
+  const handleColourExtract = (color: string) => {
+    setDominantColor(color)
+  }
+
   return (
     <div
       ref={imgRef}
-      className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+      className="relative overflow-hidden cursor-pointer transition-all duration-300"
       style={{
         flexBasis: getFlexBasis(),
         flexGrow: 1,
         minWidth: "300px",
         // fixed maximum width constraint regardless of original image dimensions
         maxWidth: "500px",
+        boxShadow: isHovered ? `0 0 20px ${dominantColor}` : "none",
+        zIndex: isHovered ? 10 : 1,
+        transform: isHovered ? "scale(1.02)" : "scale(1)",
       }}
     >
       {/* this div maintains the aspect ratio, please help me */}
       <div style={{paddingTop}}/>
 
       {isInView ? (
-        <Image
-          src={src || "/placeholder.svg"}
-          alt={alt}
-          className="absolute top-0 left-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px"
-          loading="lazy"
-          placeholder="blur"
-          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIiAvPjwvc3ZnPg=="
-        />
+        <>
+          <Image
+            src={src || "/placeholder.svg"}
+            alt={alt}
+            className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIiAvPjwvc3ZnPg=="
+          />
+          <ColourExtractor src={src} onExtract={handleColourExtract} />
+        </>
       ) : (
         <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-gray-800 animate-pulse"/>
       )}
