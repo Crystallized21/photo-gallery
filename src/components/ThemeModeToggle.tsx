@@ -11,9 +11,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {useEffect, useState} from "react";
 
 export function ThemeModeToggle() {
   const { setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // avoid hydration errors cause of theming
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null
+  }
 
   return (
     <DropdownMenu>
@@ -36,5 +47,5 @@ export function ThemeModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
