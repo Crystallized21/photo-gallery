@@ -4,6 +4,7 @@ import {useEffect, useState} from "react"
 import {ChevronLeft, ChevronRight, X} from "lucide-react"
 import Image from "next/image"
 import {Button} from "@/components/ui/button"
+import {AnimatePresence, motion} from "motion/react"
 
 interface ImageCarouselProps {
   images: {
@@ -18,7 +19,8 @@ interface ImageCarouselProps {
 }
 
 export function ImageCarousel({images, currentIndex, isOpen, onClose}: ImageCarouselProps) {
-  const [index, setIndex] = useState(currentIndex)
+  const [index, setIndex] = useState(currentIndex);
+  const [direction, setDirection] = useState(0); // 0: none, 1: left, -1: right
 
   // handle keyboard navigation
   useEffect(() => {
@@ -28,8 +30,10 @@ export function ImageCarousel({images, currentIndex, isOpen, onClose}: ImageCaro
       if (e.key === "Escape") {
         onClose()
       } else if (e.key === "ArrowLeft") {
+        setDirection(-1);
         setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
       } else if (e.key === "ArrowRight") {
+        setDirection(1);
         setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
       }
     }
@@ -43,86 +47,165 @@ export function ImageCarousel({images, currentIndex, isOpen, onClose}: ImageCaro
     setIndex(currentIndex)
   }, [currentIndex])
 
-  if (!isOpen) return null
+  const handlePrevious = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDirection(-1)
+    setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+  }
 
-  const currentImage = images[index]
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDirection(1)
+    setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+  }
+
+  // animation variants
+  const overlayVariants = {
+    hidden: {opacity: 0},
+    visible: {
+      opacity: 1,
+      transition: {duration: 0.3},
+    },
+    exit: {
+      opacity: 0,
+      transition: {duration: 0.3},
+    },
+  }
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        x: {type: "spring", stiffness: 300, damping: 30},
+        opacity: {duration: 0.2},
+      },
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+      transition: {
+        x: {type: "spring", stiffness: 300, damping: 30},
+        opacity: {duration: 0.2},
+      },
+    }),
+  }
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
-      onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") onClose()
-      }}
-      tabIndex={0}
-      role="button"
-    >
-      <div
-        className="relative w-full h-full flex items-center justify-center"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") e.stopPropagation()
-        }}
-        tabIndex={0}
-        role="button"
-      >
-        {/* the close button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
           onClick={onClose}
-        >
-          <X className="h-6 w-6"/>
-          <span className="sr-only">Close</span>
-        </Button>
-
-        {/* navigation buttons */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
-          onClick={(e) => {
-            e.stopPropagation()
-            setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") onClose()
           }}
+          role="button"
+          tabIndex={0}
+          variants={overlayVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
         >
-          <ChevronLeft className="h-8 w-8"/>
-          <span className="sr-only">Previous image</span>
-        </Button>
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") e.stopPropagation()
+            }}
+            tabIndex={0}
+            role="button"
+          >
+            {/* the close button */}
+            <motion.div
+              initial={{opacity: 0, y: -20}}
+              animate={{opacity: 1, y: 0}}
+              transition={{delay: 0.2, duration: 0.3}}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
+                onClick={onClose}
+              >
+                <X className="h-6 w-6"/>
+                <span className="sr-only">Close</span>
+              </Button>
+            </motion.div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
-          onClick={(e) => {
-            e.stopPropagation()
-            setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-          }}
-        >
-          <ChevronRight className="h-8 w-8"/>
-          <span className="sr-only">Next image</span>
-        </Button>
+            {/* navigation buttons */}
+            <motion.div
+              initial={{opacity: 0, x: -20}}
+              animate={{opacity: 1, x: 0}}
+              transition={{delay: 0.3, duration: 0.3}}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+                onClick={handlePrevious}
+              >
+                <ChevronLeft className="h-8 w-8"/>
+                <span className="sr-only">Previous image</span>
+              </Button>
+            </motion.div>
 
-        {/* image */}
-        <div className="relative w-full h-full flex items-center justify-center p-8">
-          <div className="relative max-w-full max-h-full">
-            <Image
-              src={currentImage.src || "/placeholder.svg"}
-              alt={currentImage.alt}
-              width={1200}
-              height={800}
-              className="max-h-[90vh] w-auto h-auto object-contain"
-              priority
-            />
+            <motion.div
+              initial={{opacity: 0, x: 20}}
+              animate={{opacity: 1, x: 0}}
+              transition={{delay: 0.3, duration: 0.3}}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+                onClick={handleNext}
+              >
+                <ChevronRight className="h-8 w-8"/>
+                <span className="sr-only">Next image</span>
+              </Button>
+            </motion.div>
+
+            {/* image */}
+            <div className="relative w-full h-full flex items-center justify-center p-8 overflow-hidden">
+              <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                  key={index}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="relative max-w-full max-h-full"
+                >
+                  <Image
+                    src={images[index].src || "/placeholder.svg"}
+                    alt={images[index].alt}
+                    width={1200}
+                    height={800}
+                    className="max-h-[90vh] w-auto h-auto object-contain"
+                    priority
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* image counter */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.3 }}
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white"
+            >
+              {index + 1} / {images.length}
+            </motion.div>
           </div>
-        </div>
-
-        {/* image counter */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white">
-          {index + 1} / {images.length}
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
