@@ -137,7 +137,7 @@ const PhotoScrollableArea = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 w-full justify-center">
+      <div className="flex flex-wrap gap-4 w-full justify-center px-4">
         {galleryImages.map((image, index) => (
           <ImageContainer
             key={image.id}
