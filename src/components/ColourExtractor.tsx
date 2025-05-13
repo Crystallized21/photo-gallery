@@ -55,7 +55,6 @@ export function ColourExtractor({src, onExtract}: ColourExtractorProps) {
         onExtract(Colour)
       } catch (error) {
         console.error("Error extracting Colour:", error)
-        Sentry.captureException({"Error extracting Colour": error});
         // fallback to a default Colour
         onExtract("rgb(100, 100, 100)")
       }
