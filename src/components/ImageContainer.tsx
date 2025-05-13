@@ -93,6 +93,8 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick, index}: ImageContai
     <motion.div
       ref={imgRef}
       className="relative overflow-hidden rounded-lg cursor-pointer"
+      role="button"
+      tabIndex={0}
       style={{
         flexBasis: getFlexBasis(),
         flexGrow: 1,
