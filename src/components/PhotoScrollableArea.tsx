@@ -146,6 +146,7 @@ const PhotoScrollableArea = () => {
             src={image.src || "/placeholder.svg"}
             alt={image.alt}
             onClick={() => openCarousel(index)}
+            index={index}
           />
         ))}
       </div>

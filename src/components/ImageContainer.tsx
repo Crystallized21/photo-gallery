@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from "react"
 import Image from "next/image"
 import {ColourExtractor} from "@/components/ColourExtractor";
+import {motion} from "motion/react";
 
 interface ImageContainerProps {
   id: number
@@ -10,13 +11,14 @@ interface ImageContainerProps {
   src: string
   alt: string
   onClick: () => void
+  index: number
 }
 
 // lazyimage function with intersection observer for lazy loading
 // p.s. if you're reading, you better not have any ulterior motives...
-const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProps) => {
+const ImageContainer = ({id, aspectRatio, src, alt, onClick, index}: ImageContainerProps) => {
   const [isInView, setIsInView] = useState(false)
-  const [dominantColor, setDominantColor] = useState("rgba(0, 0, 0, 0)")
+  const [dominantColour, setDominantColour] = useState("rgba(0, 0, 0, 0)")
   const [isHovered, setIsHovered] = useState(false)
   const imgRef = useRef<HTMLDivElement>(null)
 
@@ -63,22 +65,39 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProp
   }, [])
 
   // handle colour extraction
-  const handleColourExtract = (color: string) => {
-    setDominantColor(color)
+  const handleColourExtract = (Colour: string) => {
+    setDominantColour(Colour)
+  }
+
+  // animation variants
+  const containerVariants = {
+    hidden: {opacity: 0, scale: 0.8},
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        delay: index * 0.05, // stagger effect based on index, might be too much will see.
+        ease: "easeOut",
+      },
+    },
+    hover: {
+      scale: 1.05,
+      boxShadow: `0 0 25px ${dominantColour}`,
+      zIndex: 10,
+      transition: {duration: 0.3},
+    },
   }
 
   return (
-    <div
+    <motion.div
       ref={imgRef}
-      className="relative overflow-hidden rounded-lg cursor-pointer transition-all duration-300"
+      className="relative overflow-hidden rounded-lg cursor-pointer"
       style={{
         flexBasis: getFlexBasis(),
         flexGrow: 1,
         minWidth: "300px",
         maxWidth: "500px",
-        boxShadow: isHovered ? `0 0 20px ${dominantColor}` : "none",
-        zIndex: isHovered ? 10 : 1,
-        transform: isHovered ? "scale(1.02)" : "scale(1)",
       }}
       onClick={onClick}
       onKeyDown={e => {
@@ -87,10 +106,10 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProp
           onClick();
         }
       }}
-      tabIndex={0}
-      role="button"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      whileHover="hover"
+      variants={containerVariants}
     >
       {/* this div maintains the aspect ratio, please help me */}
       <div style={{paddingTop}}/>
@@ -100,19 +119,35 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick}: ImageContainerProp
           <Image
             src={src || "/placeholder.svg"}
             alt={alt}
-            className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500"
+            className="absolute top-0 left-0 w-full h-full object-cover"
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px"
             loading="lazy"
             placeholder="blur"
             blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIiAvPjwvc3ZnPg=="
           />
+          <motion.div
+            className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"
+            whileHover={{
+              backgroundColor: `${dominantColour}33`, // add transparency to the colour
+            }}
+          />
           <ColourExtractor src={src} onExtract={handleColourExtract}/>
         </>
       ) : (
-        <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-gray-800 animate-pulse"/>
+        <motion.div
+          className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-gray-800"
+          animate={{
+            opacity: [0.5, 1, 0.5],
+          }}
+          transition={{
+            repeat: Number.POSITIVE_INFINITY,
+            duration: 1.5,
+            ease: "easeInOut",
+          }}
+        />
       )}
-    </div>
+    </motion.div>
   )
 }
 
