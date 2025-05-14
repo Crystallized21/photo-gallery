@@ -2,7 +2,7 @@
 
 import {fetchImages} from "@/lib/appwrite";
 import React, {useCallback, useEffect, useState} from 'react';
-import {ImageCarousel} from './ImageCarousel'
+import {CarouselImage} from './CarouselImage'
 import {useInView} from 'react-intersection-observer'
 import ImageContainer from "@/components/ImageContainer";
 import {motion} from "motion/react";
@@ -23,7 +23,7 @@ interface GalleryImage {
   createdAt: string
 }
 
-const AppwriteCarousel = () => {
+const Carousel = () => {
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -65,7 +65,7 @@ const AppwriteCarousel = () => {
     [offset],
   )
 
-  // Load more images when user scrolls to bottom
+  // load more images when user scrolls to bottom
   useEffect(() => {
     if (inView && hasMore && !loading) {
       loadImages()
@@ -142,7 +142,7 @@ const AppwriteCarousel = () => {
 
       {/* the actual carousel itself */}
       {images.length > 0 && (
-        <ImageCarousel
+        <CarouselImage
           images={carouselImages}
           currentIndex={currentImageIndex}
           isOpen={carouselOpen}
@@ -153,4 +153,4 @@ const AppwriteCarousel = () => {
   )
 };
 
-export default AppwriteCarousel;
+export default Carousel;

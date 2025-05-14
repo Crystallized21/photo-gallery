@@ -1,18 +1,10 @@
 "use client"
 
 import React, {useState} from 'react';
-import {ThemeModeToggle} from "@/components/ThemeModeToggle";
-import AppwriteCarousel from "@/components/AppwriteCarousel";
+import {ThemeModeToggle} from "@/components/themes/ThemeModeToggle";
+import Carousel from "@/components/carousel/Carousel";
 
 const PhotoScrollableArea = () => {
-  const [carouselOpen, setCarouselOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  const openCarousel = (index: number) => {
-    setCurrentImageIndex(index);
-    setCarouselOpen(true);
-  }
-
   return (
     <div
       className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -21,9 +13,9 @@ const PhotoScrollableArea = () => {
           <ThemeModeToggle/>
         </div>
 
-        <div className="mb-12 text-center px-20">
+        <div className="mb-12 text-center max-w-8xl mx-auto px-20 sm:px-20">
           <h1 className="text-3xl font-bold mb-6">My Photo Gallery</h1>
-          <p className="text-lg leading-relaxed">
+          <p className="text-lg leading-relaxed mx-auto">
             If you came from my dev website, welcome. This is me when I have time and go outside to do something else,
             taking a break from the screens.
             <br/>
@@ -36,7 +28,7 @@ const PhotoScrollableArea = () => {
         </div>
       </div>
 
-      <AppwriteCarousel/>
+      <Carousel/>
     </div>
   );
 };
