@@ -39,6 +39,15 @@ const ImageContainer = ({id, aspectRatio, src, alt, onClick, index}: ImageContai
     return "22%" // Default for other aspect ratios
   }
 
+  //// wide images get more space, tall images get less
+  //     if (ratio >= 2) return "50%" // very wide images
+  //     if (ratio > 1.5) return "33.333%" // wide images
+  //     if (ratio > 1) return "25%" // slightly wide images
+  //     if (ratio === 1) return "20%" // square images
+  //     if (ratio < 0.6) return "16.666%" // very tall images
+  //     if (ratio < 1) return "18%" // portrait images
+  //     return "20%" // default
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
