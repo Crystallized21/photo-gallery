@@ -6,6 +6,18 @@ const client = new Client()
   .setEndpoint("https://syd.cloud.appwrite.io/v1")
   .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "")
 
+const productionUrl = "https://gallery.crystallized.sh"
+const developmentUrl = "http://localhost:3000"
+
+if (typeof window !== "undefined") {
+  client.headers = {
+    ...client.headers,
+    "Access-Control-Allow-Origin": process.env.NODE_ENV === "production"
+      ? productionUrl
+      : developmentUrl
+  }
+}
+
 // initialize Appwrite storage
 export const storage = new Storage(client)
 
