@@ -1,109 +1,8 @@
 "use client"
 
 import React, {useState} from 'react';
-import ImageContainer from "@/components/ImageContainer";
 import {ThemeModeToggle} from "@/components/ThemeModeToggle";
-import {ImageCarousel} from "@/components/ImageCarousel";
-
-// sample image data with different aspect ratios
-const galleryImages = [
-  {
-    id: 1,
-    aspectRatio: "4/3",
-    src: "https://images.unsplash.com/photo-1744029829181-ad19c2ee248b?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    alt: "Gallery photo 1",
-  },
-  {
-    id: 2,
-    aspectRatio: "1/1",
-    src: "https://images.unsplash.com/photo-1744132813623-5ce3c521eef4?q=80&w=3136&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    alt: "Gallery photo 2",
-  },
-  {
-    id: 3,
-    aspectRatio: "3/4",
-    src: "/placeholder.svg?height=800&width=600&text=Photo 3",
-    alt: "Gallery photo 3",
-  },
-  {
-    id: 4,
-    aspectRatio: "16/9",
-    src: "/placeholder.svg?height=800&width=1422&text=Photo 4 (16:9)",
-    alt: "Gallery photo 4",
-  },
-  {
-    id: 5,
-    aspectRatio: "9/16",
-    src: "/placeholder.svg?height=800&width=450&text=Photo 5",
-    alt: "Gallery photo 5",
-  },
-  {
-    id: 6,
-    aspectRatio: "2/1",
-    src: "/placeholder.svg?height=800&width=1600&text=Photo 6 (Panorama)",
-    alt: "Gallery photo 6",
-  },
-  {
-    id: 7,
-    aspectRatio: "1/2",
-    src: "/placeholder.svg?height=800&width=400&text=Photo 7",
-    alt: "Gallery photo 7",
-  },
-  {
-    id: 8,
-    aspectRatio: "2/1",
-    src: "/placeholder.svg?height=800&width=1600&text=Large Image (7200x3600)",
-    alt: "Large panoramic photo",
-  },
-  {
-    id: 9,
-    aspectRatio: "2/3",
-    src: "/placeholder.svg?height=800&width=533&text=Photo 9",
-    alt: "Gallery photo 9",
-  },
-  {
-    id: 10,
-    aspectRatio: "4/3",
-    src: "/placeholder.svg?height=800&width=1067&text=Photo 10",
-    alt: "Gallery photo 10",
-  },
-  {
-    id: 11,
-    aspectRatio: "1/1",
-    src: "/placeholder.svg?height=800&width=800&text=Photo 11",
-    alt: "Gallery photo 11",
-  },
-  {
-    id: 12,
-    aspectRatio: "4/3",
-    src: "/placeholder.svg?height=800&width=1067&text=Photo 12",
-    alt: "Gallery photo 12",
-  },
-  {
-    id: 13,
-    aspectRatio: "3/2",
-    src: "/placeholder.svg?height=800&width=1200&text=Photo 13",
-    alt: "Gallery photo 13",
-  },
-  {
-    id: 14,
-    aspectRatio: "1/1",
-    src: "/placeholder.svg?height=800&width=800&text=Photo 14",
-    alt: "Gallery photo 14",
-  },
-  {
-    id: 15,
-    aspectRatio: "4/3",
-    src: "/placeholder.svg?height=800&width=1067&text=Photo 15",
-    alt: "Gallery photo 15",
-  },
-  {
-    id: 16,
-    aspectRatio: "3/4",
-    src: "/placeholder.svg?height=800&width=600&text=Photo 16",
-    alt: "Gallery photo 16",
-  },
-]
+import AppwriteCarousel from "@/components/AppwriteCarousel";
 
 const PhotoScrollableArea = () => {
   const [carouselOpen, setCarouselOpen] = useState(false);
@@ -137,26 +36,7 @@ const PhotoScrollableArea = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 w-full justify-center px-4">
-        {galleryImages.map((image, index) => (
-          <ImageContainer
-            key={image.id}
-            id={image.id}
-            aspectRatio={image.aspectRatio}
-            src={image.src || "/placeholder.svg"}
-            alt={image.alt}
-            onClick={() => openCarousel(index)}
-            index={index}
-          />
-        ))}
-      </div>
-
-      <ImageCarousel
-        currentIndex={currentImageIndex}
-        images={galleryImages}
-        isOpen={carouselOpen}
-        onClose={() => setCarouselOpen(false)}
-      />
+      <AppwriteCarousel/>
     </div>
   );
 };
