@@ -49,10 +49,10 @@ export const getFullImage = (fileId: string, width = 1200): string => {
 // fetch images from storage bucket
 export const fetchImages = async (limit = 20, offset = 0) => {
   try {
-    // vetch files from storage bucket
+    // fetch files from storage bucket
     const response = await storage.listFiles(BUCKET_ID)
 
-    // vilter for only image files
+    // filter for only image files
     const imageFiles = response.files.filter((file) => file.mimeType?.startsWith("image/"))
 
     const paginatedFiles = imageFiles.slice(offset, offset + limit)
@@ -79,7 +79,7 @@ export const fetchImages = async (limit = 20, offset = 0) => {
         src: {
           thumbnail: getImagePreview(file.$id, 600), // thumbnail
           medium: getImagePreview(file.$id, 1800), // medium size for initial carousel view
-          full: getFullImage(file.$id, 2200), // full size for zoomed view
+          full: getFullImage(file.$id, 3000), // full size for zoomed view
         },
         alt: file.name || "Gallery image",
         createdAt: file.$createdAt,
