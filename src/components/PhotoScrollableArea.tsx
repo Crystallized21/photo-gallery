@@ -24,6 +24,9 @@ const PhotoScrollableArea = () => {
             <br/>
             <br/>
             Hope you enjoy viewing my photos.
+            <br/>
+            <br/>
+            - Michael Bui
           </p>
         </div>
       </div>
