@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Crystal's Photo Gallery",
-  description: "Welcome.",
+  description: "A chill little gallery of my photos.",
 };
 
 export default function RootLayout({
