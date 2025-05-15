@@ -13,7 +13,7 @@ const PhotoScrollableArea = () => {
           <ThemeModeToggle/>
         </div>
 
-        <div className="mb-12 text-center max-w-8xl mx-auto px-20 sm:px-20">
+        <div className="mb-12 text-center max-w-8xl mx-auto md:px-20 px-4">
           <h1 className="text-3xl font-bold mb-6">My Photo Gallery</h1>
           <p className="text-lg leading-relaxed mx-auto">
             If you came from my dev website, welcome. This is me when I have time and go outside to do something else,
