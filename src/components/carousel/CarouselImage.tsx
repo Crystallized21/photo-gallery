@@ -10,7 +10,7 @@ import {CarouselContent} from "@/components/carousel/CarouselContent"
 import {CarouselOverlays} from "@/components/carousel/CarouselOverlays"
 import {overlayVariants} from "@/animations/carouselAnimations"
 
-interface ImageCarouselProps {
+interface CarouselImageProps {
   images: {
     id: string
     src: string
@@ -24,7 +24,7 @@ interface ImageCarouselProps {
   onClose: () => void
 }
 
-export function CarouselImage({images, currentIndex, isOpen, onClose}: ImageCarouselProps) {
+export function CarouselImage({images, currentIndex, isOpen, onClose}: CarouselImageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isZoomed, setIsZoomed] = useState(false)
 
@@ -106,6 +106,22 @@ export function CarouselImage({images, currentIndex, isOpen, onClose}: ImageCaro
     }
   };
 
+  // swipe handlers for mobile navigation
+  const handleSwipeDragEnd = (
+    e: MouseEvent | TouchEvent | PointerEvent,
+    info: { offset: { x: number; y: number }; velocity: { x: number; y: number } }
+  ) => {
+    if (isZoomed) return; // don't navigate when zoomed
+
+    // check if the horizontal swipe distance is significant
+    if (Math.abs(info.offset.x) > 100) {
+      if (info.offset.x > 0) {
+        previous(); // swipe right to go to previous
+      } else {
+        next(); // swipe left to go to next
+      }
+    }
+  };
 
   if (!isOpen || images.length === 0) return null
 
@@ -156,9 +172,13 @@ export function CarouselImage({images, currentIndex, isOpen, onClose}: ImageCaro
         />
 
         <div className="w-full h-full flex items-center justify-center p-8">
-          <div
+          <motion.div
             ref={imageContainerRef}
             className="relative w-full h-full flex items-center justify-center overflow-hidden"
+            drag={!isZoomed ? "x" : false}
+            dragConstraints={{left: 0, right: 0}}
+            dragElastic={0.2}
+            onDragEnd={handleSwipeDragEnd}
           >
             <AnimatePresence>
               <CarouselContent
@@ -177,7 +197,7 @@ export function CarouselImage({images, currentIndex, isOpen, onClose}: ImageCaro
                 onLoadingComplete={() => setIsLoading(false)}
               />
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </div>
     </motion.div>
