@@ -1,15 +1,24 @@
 "use client"
 
-import React, {useState} from 'react';
+import React from 'react';
 import {ThemeModeToggle} from "@/components/themes/ThemeModeToggle";
 import Carousel from "@/components/carousel/Carousel";
+import {Button} from "@/components/ui/button";
+import Link from 'next/link';
+import {CodeXml} from 'lucide-react';
 
 const PhotoScrollableArea = () => {
   return (
     <div
       className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <div className="w-full px-4 py-8">
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-between mb-6 mx-2 md:mx-4">
+          <Link href="https://crystallized.sh">
+            <Button className="cursor-pointer" variant="outline">
+              <CodeXml/>
+              Dev Website
+            </Button>
+          </Link>
           <ThemeModeToggle/>
         </div>
 
