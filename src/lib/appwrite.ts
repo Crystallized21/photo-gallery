@@ -123,6 +123,4 @@ export const fetchImages = async (limit = 20, offset = 0) => {
       }
     }
   }
-  
-  // This should not be reached but is here for completeness
 }
