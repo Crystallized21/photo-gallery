@@ -47,7 +47,8 @@ const Carousel = () => {
       try {
         setLoading(true)
         const newOffset = reset ? 0 : offset
-        const newImages = await fetchImages(LIMIT, newOffset)
+        const fetched = await fetchImages(LIMIT, newOffset)
+        const newImages = fetched ?? []
 
         if (newImages.length < LIMIT) {
           setHasMore(false)

@@ -60,46 +60,67 @@ export const getFullImage = (fileId: string, width = 1200): string => {
 
 // fetch images from storage bucket
 export const fetchImages = async (limit = 20, offset = 0) => {
-  try {
-    // fetch files from storage bucket
-    const response = await storage.listFiles(BUCKET_ID)
+  const MAX_RETRIES = 3;
+  let lastError: any = null;
 
-    // filter for only image files
-    const imageFiles = response.files.filter((file) => file.mimeType?.startsWith("image/"))
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      // fetch files from storage bucket
+      const response = await storage.listFiles(BUCKET_ID)
 
-    const paginatedFiles = imageFiles.slice(offset, offset + limit)
+      // filter for only image files
+      const imageFiles = response.files.filter((file) => file.mimeType?.startsWith("image/"))
 
-    // map the response to include preview URLs
-    return paginatedFiles.map((file) => {
-      // Try to determine aspect ratio from file metadata if available
-      let aspectRatio = "4/3" // Default fallback
+      const paginatedFiles = imageFiles.slice(offset, offset + limit)
 
-      // check if we can access width and height from file
-      const fileWidth = (file as { width?: number }).width
-      const fileHeight = (file as { height?: number }).height
+      // map the response to include preview URLs
+      return paginatedFiles.map((file) => {
+        // Try to determine aspect ratio from file metadata if available
+        let aspectRatio = "4/3" // Default fallback
 
-      if (fileWidth && fileHeight) {
-        aspectRatio = `${fileWidth}/${fileHeight}`
+        // check if we can access width and height from file
+        const fileWidth = (file as { width?: number }).width
+        const fileHeight = (file as { height?: number }).height
+
+        if (fileWidth && fileHeight) {
+          aspectRatio = `${fileWidth}/${fileHeight}`
+        }
+
+        return {
+          id: file.$id,
+          fileId: file.$id,
+          title: file.name || "Untitled",
+          description: "",
+          aspectRatio,
+          src: {
+            thumbnail: getImagePreview(file.$id, 600), // thumbnail
+            medium: getImagePreview(file.$id, 1800), // medium size for initial carousel view
+            full: getFullImage(file.$id, 3000), // full size for zoomed view
+          },
+          alt: file.name || "Gallery image",
+          createdAt: file.$createdAt,
+        }
+      })
+    } catch (error) {
+      lastError = error;
+      console.error(`Error fetching images (attempt ${attempt + 1}/${MAX_RETRIES}):`, error)
+      
+      // Only retry on network-related fetch errors
+      if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
+        if (attempt < MAX_RETRIES - 1) {
+          // Exponential backoff: 1s, 2s, 4s, ...
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          Sentry.captureException(lastError);
+          throw lastError; // Re-throw after final retry failure
+        }
+      } else {
+        // Non-retryable error, capture and re-throw immediately
+        Sentry.captureException(error);
+        throw error;
       }
-
-      return {
-        id: file.$id,
-        fileId: file.$id,
-        title: file.name || "Untitled",
-        description: "",
-        aspectRatio,
-        src: {
-          thumbnail: getImagePreview(file.$id, 600), // thumbnail
-          medium: getImagePreview(file.$id, 1800), // medium size for initial carousel view
-          full: getFullImage(file.$id, 3000), // full size for zoomed view
-        },
-        alt: file.name || "Gallery image",
-        createdAt: file.$createdAt,
-      }
-    })
-  } catch (error) {
-    console.error("Error fetching images:", error)
-    Sentry.captureException(error)
-    return []
+    }
   }
 }
