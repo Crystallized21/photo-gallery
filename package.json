@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npx gtx-cli translate && next build",
     "buildTurbo": "next build --turbo",
     "start": "next start",
     "lint": "biome lint ./src"
@@ -17,6 +17,7 @@
     "appwrite": "^17.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gt-next": "^5.2.37",
     "lucide-react": "^0.510.0",
     "motion": "^12.11.0",
     "next": "15.3.2",
@@ -32,6 +33,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "gtx-cli": "^1.2.23",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.2.9",
     "typescript": "^5"

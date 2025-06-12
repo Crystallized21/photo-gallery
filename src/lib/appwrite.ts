@@ -1,5 +1,5 @@
-import {Client, ID, Storage} from "appwrite"
 import * as Sentry from "@sentry/nextjs";
+import {Client, Storage} from "appwrite"
 
 // initialize Appwrite client
 const client = new Client()
@@ -61,7 +61,7 @@ export const getFullImage = (fileId: string, width = 1200): string => {
 // fetch images from storage bucket
 export const fetchImages = async (limit = 20, offset = 0) => {
   const MAX_RETRIES = 3;
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
@@ -104,11 +104,12 @@ export const fetchImages = async (limit = 20, offset = 0) => {
     } catch (error) {
       lastError = error;
       console.error(`Error fetching images (attempt ${attempt + 1}/${MAX_RETRIES}):`, error)
-      
+
       // Only retry on network-related fetch errors
       if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
         if (attempt < MAX_RETRIES - 1) {
           // Exponential backoff: 1s, 2s, 4s, ...
+          // biome-ignore lint/style/useExponentiationOperator: why, it just makes it unreadable
           const delay = Math.pow(2, attempt) * 1000;
           console.log(`Retrying in ${delay}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
