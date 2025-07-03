@@ -1,7 +1,8 @@
-import PhotoScrollableArea from "@/components/PhotoScrollableArea";
+import Header from "@/components/Header";
 
 export default function Home() {
   return (
-    <PhotoScrollableArea/>
+    <div>
+    </div>
   );
 }
