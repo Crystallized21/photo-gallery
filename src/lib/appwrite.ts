@@ -1,127 +1,132 @@
 import * as Sentry from "@sentry/nextjs";
-import {Client, Storage} from "appwrite"
+import {Client, Storage, Query} from "appwrite";
 
-// initialize Appwrite client
+interface ImageData {
+  id: string;
+  title: string;
+  description: string;
+  src: {
+    thumbnail: string;
+    full: string;
+  };
+  alt: string;
+  createdAt: string;
+}
+
+// Initialize Appwrite client
 const client = new Client()
   .setEndpoint("https://syd.cloud.appwrite.io/v1")
-  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "")
+  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "");
 
-const productionUrl = "https://gallery.crystallized.sh"
-const developmentUrl = "http://localhost:3000"
-
+// Set CORS headers for client-side requests
 if (typeof window !== "undefined") {
+  const origin = process.env.NODE_ENV === "production"
+    ? "https://gallery.crystallized.sh"
+    : "http://localhost:3000";
+
   client.headers = {
     ...client.headers,
-    "Access-Control-Allow-Origin": process.env.NODE_ENV === "production"
-      ? productionUrl
-      : developmentUrl
-  }
+    "Access-Control-Allow-Origin": origin
+  };
 }
 
-// initialize Appwrite storage
-export const storage = new Storage(client)
+// Initialize Appwrite storage
+export const storage = new Storage(client);
 
-// storage constants
-export const BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || ""
+// Storage constants
+export const BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || "";
 
-// get image preview URL with width/height parameters
-export const getImagePreview = (fileId: string, width = 300): string => {
+// Get thumbnail preview URL
+export const getThumbnail = (fileId: string): string => {
   return storage.getFilePreview(
     BUCKET_ID,
     fileId,
-    width,
-    0,
+    600, // width
+    0,   // height
     undefined,
-    100,
-    0,
-    "ffffff",
-    0,
+    60, // quality
+    0,   // border width
+    "ffffff", // border color
+    0,   // border radius
     undefined,
     undefined,
-  )
-}
+  );
+};
 
-// get full image URL for the carousel
-export const getFullImage = (fileId: string, width = 1200): string => {
+// Get full image URL
+export const getFullImage = (fileId: string): string => {
   return storage.getFilePreview(
     BUCKET_ID,
     fileId,
-    width,
-    0,
+    3000, // width
+    0,    // height
     undefined,
-    90,
-    0,
-    "ffffff",
-    0,
+    100,  // quality
+    0,   // border width
+    "ffffff", // border color
+    0,   // border radius
     undefined,
     undefined,
-  )
-}
+  );
+};
 
-// fetch images from storage bucket
-export const fetchImages = async (limit = 20, offset = 0) => {
+// Fetch images from storage bucket
+export const fetchImages = async (limit = 20, offset = 0): Promise<ImageData[]> => {
   const MAX_RETRIES = 3;
   let lastError: unknown = null;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      // fetch files from storage bucket
-      const response = await storage.listFiles(BUCKET_ID)
+      // Use proper Query objects instead of string queries
+      const queries = [
+        Query.limit(limit),
+        Query.offset(offset)
+      ];
 
-      // filter for only image files
-      const imageFiles = response.files.filter((file) => file.mimeType?.startsWith("image/"))
+      // Fetch files with Appwrite pagination through queries
+      const response = await storage.listFiles(
+        BUCKET_ID,
+        queries
+      );
 
-      const paginatedFiles = imageFiles.slice(offset, offset + limit)
+      // Filter for only image files
+      const imageFiles = response.files.filter(
+        (file) => file.mimeType?.startsWith("image/")
+      );
 
-      // map the response to include preview URLs
-      return paginatedFiles.map((file) => {
-        // Try to determine aspect ratio from file metadata if available
-        let aspectRatio = "4/3" // Default fallback
-
-        // check if we can access width and height from file
-        const fileWidth = (file as { width?: number }).width
-        const fileHeight = (file as { height?: number }).height
-
-        if (fileWidth && fileHeight) {
-          aspectRatio = `${fileWidth}/${fileHeight}`
-        }
-
-        return {
-          id: file.$id,
-          fileId: file.$id,
-          title: file.name || "Untitled",
-          description: "",
-          aspectRatio,
-          src: {
-            thumbnail: getImagePreview(file.$id, 600), // thumbnail
-            medium: getImagePreview(file.$id, 1800), // medium size for initial carousel view
-            full: getFullImage(file.$id, 3000), // full size for zoomed view
-          },
-          alt: file.name || "Gallery image",
-          createdAt: file.$createdAt,
-        }
-      })
+      // Map the response to include preview URLs
+      return imageFiles.map((file) => ({
+        id: file.$id,
+        title: file.name || "Untitled",
+        description: "",
+        src: {
+          thumbnail: getThumbnail(file.$id),
+          full: getFullImage(file.$id),
+        },
+        alt: file.name || "Gallery image",
+        createdAt: file.$createdAt,
+      }));
     } catch (error) {
+      // Error handling remains the same
       lastError = error;
-      console.error(`Error fetching images (attempt ${attempt + 1}/${MAX_RETRIES}):`, error)
+      console.error(`Error fetching images (attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
 
-      // Only retry on network-related fetch errors
-      if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
-        if (attempt < MAX_RETRIES - 1) {
-          // Exponential backoff: 1s, 2s, 4s, ...
-          // biome-ignore lint/style/useExponentiationOperator: why, it just makes it unreadable
-          const delay = Math.pow(2, attempt) * 1000;
-          console.log(`Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          Sentry.captureException(lastError);
-          throw lastError; // Re-throw after final retry failure
-        }
+      // Rest of the error handling...
+      const isNetworkError =
+        error instanceof TypeError &&
+        (error.message.includes("Failed to fetch") ||
+          error.message.includes("Network request failed"));
+
+      if (isNetworkError && attempt < MAX_RETRIES - 1) {
+        const delay = 2 ** attempt * 1000;
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       } else {
-        // Non-retryable error, capture and re-throw immediately
         Sentry.captureException(error);
         throw error;
       }
     }
   }
-}
+
+  return [];
+};
