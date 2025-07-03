@@ -83,14 +83,33 @@ export default function FOHCarousel() {
         </div>
       ))}
 
-      {/* Darker overlay for better text visibility */}
+      {/* darker overlay for better text visibility */}
       <div className="absolute inset-0 bg-black/15"/>
 
       {/* Welcome text */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <h1 className="text-5xl md:text-7xl font-bold text-white drop-shadow-lg">
-          Welcome
+        <h1 className="text-5xl md:text-7xl font-light text-white drop-shadow-lg">
+          Welcome to my outside life.
         </h1>
+      </div>
+
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center animate-bounce">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-10 w-10 text-white drop-shadow-lg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-label="Scroll down indicator"
+          role="img"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          />
+        </svg>
       </div>
     </div>
   )
