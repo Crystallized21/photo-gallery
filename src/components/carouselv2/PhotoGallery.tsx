@@ -1,20 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import LightGallery from "lightgallery/react";
-import { fetchImages } from "@/lib/appwrite";
+import {fetchImages} from "@/lib/appwrite";
 
 import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-zoom.css';
 import 'lightgallery/css/lg-thumbnail.css';
 
+type Image = {
+  id: string;
+  fileId: string;
+  title: string;
+  description: string;
+  aspectRatio: string;
+  src: {
+    thumbnail: string;
+    medium: string;
+    full: string;
+  };
+  alt: string;
+  createdAt: string;
+};
 
-export default function FOHCarousel() {
-  const [images, setImages] = useState<any[]>([]);
+export default function PhotoGallery() {
+  const [images, setImages] = useState<Image[]>([]);
 
   useEffect(() => {
     fetchImages(20, 0)
-      .then(setImages)
+      .then((imgs) => setImages(imgs ?? []))
       .catch(console.error);
   }, []);
 
@@ -38,7 +52,7 @@ export default function FOHCarousel() {
             <img
               src={img.src.thumbnail}
               alt={img.alt}
-              style={{ width: "100%", maxWidth: "300px", height: "auto" }}
+              style={{width: "100%", maxWidth: "300px", height: "auto"}}
               loading="lazy"
             />
           </a>
