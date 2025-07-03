@@ -26,7 +26,7 @@ export default function Header() {
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex-shrink-0">
-          <Link href="/public" className={`text-xl tracking-tight ${textColor}`}>
+          <Link href="/" className={`text-xl font-medium tracking-tight ${textColor}`}>
             Crystal's Gallery
           </Link>
         </div>
