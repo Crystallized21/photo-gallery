@@ -1,5 +1,5 @@
 import type React from "react";
-import {Button} from "@/components/ui/button";
+import {Button} from "@/components/ui/shadcn/button";
 import {ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut} from "lucide-react";
 import {motion} from "motion/react";
 import {buttonAnimations} from "@/animations/carouselAnimations";
