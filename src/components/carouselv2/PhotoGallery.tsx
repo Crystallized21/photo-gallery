@@ -28,7 +28,22 @@ export default function PhotoGallery() {
 
   useEffect(() => {
     fetchImages(20, 0)
-      .then((imgs) => setImages(imgs ?? []))
+      .then((imgs) => setImages(
+        (imgs ?? []).map(img => ({
+          id: img.id,
+          fileId: img.id, // fallback to id
+          title: img.title,
+          description: img.description,
+          aspectRatio: "1/1", // default value
+          src: {
+            thumbnail: img.src.thumbnail,
+            medium: img.src.full, // duplicate full as medium
+            full: img.src.full,
+          },
+          alt: img.alt,
+          createdAt: img.createdAt,
+        }))
+      ))
       .catch(console.error);
   }, []);
 
