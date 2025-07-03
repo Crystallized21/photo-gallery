@@ -64,9 +64,9 @@ export default function FOHCarousel() {
 
   if (isLoading) {
     return (
-      <div className="relative h-screen w-full flex flex-col items-center justify-center bg-gray-100">
+      <div className="relative h-screen w-full flex flex-col items-center justify-center bg-black">
         <div className="mb-4 h-12 w-12 rounded-full border-4 border-gray-300 border-t-blue-500 animate-spin"/>
-        <p className="text-xl">Loading gallery...</p>
+        <p className="text-xl">Loading</p>
       </div>
     )
   }
