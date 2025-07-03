@@ -34,6 +34,7 @@ export default function Header() {
         <div className="ml-auto flex items-center space-x-6">
           <div className="hidden md:flex space-x-8">
             <NavLink href="/about" text="ABOUT" textColor={textColor} hoverColor={hoverColor}/>
+            <NavLink href="/gallery" text="GALLERY" textColor={textColor} hoverColor={hoverColor}/>
           </div>
 
           <div className={`hidden md:block h-6 border-l ${borderColor}`}/>
