@@ -20,9 +20,26 @@ export default function FOHCarousel() {
     const getImages = async () => {
       try {
         setIsLoading(true)
-        // Limit to a reasonable number of carousel images
-        const fetchedImages = await fetchImages(3, 0)
-        setImages(fetchedImages)
+        // Fetch all images from the bucket
+        const allImages = await fetchImages(100, 0)
+
+        // select 3 random images
+        let randomImages = []
+        if (allImages.length <= 3) {
+          // if 3 or fewer images total, use all of them
+          randomImages = allImages
+        } else {
+          // select 3 random images without duplicates
+          const selectedIndices = new Set<number>()
+          while (selectedIndices.size < 3) {
+            const randomIndex = Math.floor(Math.random() * allImages.length)
+            selectedIndices.add(randomIndex)
+          }
+
+          randomImages = Array.from(selectedIndices).map(index => allImages[index])
+        }
+
+        setImages(randomImages)
         setIsLoading(false)
       } catch (err) {
         console.error("Failed to fetch images:", err)
@@ -84,7 +101,7 @@ export default function FOHCarousel() {
       ))}
 
       {/* darker overlay for better text visibility */}
-      <div className="absolute inset-0 bg-black/15"/>
+      <div className="absolute inset-0 bg-black/30"/>
 
       {/* Welcome text */}
       <div className="absolute inset-0 flex items-center justify-center">
