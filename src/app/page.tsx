@@ -7,6 +7,9 @@ export default function Home() {
       <div className="flex justify-center items-center h-screen">
         <p>testtesttesttesttesttest</p>
       </div>
+      <div className="flex justify-center bg-black items-center h-screen">
+        <p>testtesttesttesttesttest</p>
+      </div>
     </div>
   );
 }
