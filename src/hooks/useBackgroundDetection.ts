@@ -1,4 +1,4 @@
-import { useState, useEffect, type RefObject } from 'react';
+import {type RefObject, useEffect, useRef, useState} from 'react';
 
 // Throttle function to improve performance
 const throttle = <T extends (...args: unknown[]) => void>(fn: T, delay: number) => {
@@ -12,74 +12,130 @@ const throttle = <T extends (...args: unknown[]) => void>(fn: T, delay: number) 
   };
 };
 
-export function useBackgroundDetection(elementRef: RefObject<HTMLElement>) {
+export function useBackgroundDetection(
+  elementRef: RefObject<HTMLElement>,
+  options = {samplePoints: 3, luminanceThreshold: 0.5, debug: false}
+) {
   const [isDarkBackground, setIsDarkBackground] = useState(false);
+
+  // Use ref instead of useMemo to maintain stable reference
+  const optionsRef = useRef({
+    samplePoints: options.samplePoints || 3,
+    luminanceThreshold: options.luminanceThreshold || 0.5,
+    debug: options.debug || false
+  });
 
   useEffect(() => {
     if (!elementRef.current) return;
+
+    const opts = optionsRef.current;
 
     const detectBackgroundColor = () => {
       if (!elementRef.current) return;
 
       const headerRect = elementRef.current.getBoundingClientRect();
-      const middleX = headerRect.left + headerRect.width / 2;
-      const elementBelow = document.elementFromPoint(middleX, headerRect.bottom + 5);
+      const samplePoints = opts.samplePoints;
+      let darkPointsCount = 0;
 
-      if (elementBelow) {
-        // check if element is or contains an image
-        const imgElement = elementBelow.tagName === 'IMG'
-          ? elementBelow
-          : elementBelow.querySelector('img');
+      // Sample multiple points beneath the header for better accuracy
+      for (let i = 0; i < samplePoints; i++) {
+        // Calculate X position for this sample (evenly distributed)
+        const sampleX = headerRect.left + (headerRect.width * (i + 1)) / (samplePoints + 1);
+        const elementBelow = document.elementFromPoint(sampleX, headerRect.bottom + 5);
 
-        if (imgElement && (
-          window.getComputedStyle(imgElement).objectFit === 'cover' ||
-          imgElement.closest('.h-screen')
-        )) {
-          setIsDarkBackground(true);
-          return;
-        }
+        if (elementBelow) {
+          // Get effective background color, traversing up the DOM if needed
+          const effectiveColor = getEffectiveBackgroundColor(elementBelow);
 
-        // attempt to get computed background color
-        let bgColor = '';
-        let currentEl: Element | null = elementBelow;
+          if (effectiveColor) {
+            const luminance = calculateLuminance(effectiveColor);
+            if (opts.debug) {
+              console.log(`Sample ${i + 1}: luminance ${luminance} at x=${sampleX}`, effectiveColor);
+            }
 
-        while (currentEl && !bgColor && currentEl !== document.body) {
-          const style = window.getComputedStyle(currentEl);
-          const bg = style.backgroundColor;
-          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-            bgColor = bg;
-          }
-          currentEl = currentEl.parentElement;
-        }
-
-        if (bgColor) {
-          const rgb = bgColor.match(/\d+/g);
-          if (rgb && rgb.length >= 3) {
-            const luminance = (0.299 * +rgb[0] + 0.587 * +rgb[1] + 0.114 * +rgb[2]) / 255;
-            setIsDarkBackground(luminance < 0.5);
-            return;
+            if (luminance < opts.luminanceThreshold) {
+              darkPointsCount++;
+            }
           }
         }
       }
 
-      // use scroll position as fallback
-      setIsDarkBackground(window.scrollY > 100);
+      // More than half of sample points detected as dark = dark background
+      const isDark = darkPointsCount > samplePoints / 2;
+      if (opts.debug) {
+        console.log(`Dark points: ${darkPointsCount}/${samplePoints}, setting isDark: ${isDark}`);
+      }
+      setIsDarkBackground(isDark);
+    };
+
+    // Get the effective background color of an element
+    const getEffectiveBackgroundColor = (element: Element): string | null => {
+      let currentEl: Element | null = element;
+      let effectiveColor = null;
+
+      while (currentEl && currentEl !== document.body) {
+        const style = window.getComputedStyle(currentEl);
+        const backgroundColor = style.backgroundColor;
+
+        if (backgroundColor &&
+          backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+          backgroundColor !== 'transparent') {
+          effectiveColor = backgroundColor;
+          break;
+        }
+
+        // Check background-image as well
+        const backgroundImage = style.backgroundImage;
+        if (backgroundImage && backgroundImage !== 'none') {
+          // For background images, we'll use a dark assumption if there's an image
+          return 'rgba(50, 50, 50, 1)';
+        }
+
+        currentEl = currentEl.parentElement;
+      }
+
+      // Fallback to body/html background if nothing was found
+      if (!effectiveColor) {
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        if (bodyBg && bodyBg !== 'rgba(0, 0, 0, 0)' && bodyBg !== 'transparent') {
+          effectiveColor = bodyBg;
+        } else {
+          effectiveColor = window.getComputedStyle(document.documentElement).backgroundColor;
+        }
+      }
+
+      return effectiveColor;
+    };
+
+    // Calculate luminance from RGB color
+    const calculateLuminance = (color: string): number => {
+      const rgb = color.match(/\d+/g);
+      if (rgb && rgb.length >= 3) {
+        return (0.299 * +rgb[0] + 0.587 * +rgb[1] + 0.114 * +rgb[2]) / 255;
+      }
+      return 0.5; // Default to middle luminance if can't determine
     };
 
     const throttledDetect = throttle(detectBackgroundColor, 100);
 
-    // initial check
+    // Initial check
     detectBackgroundColor();
 
-    // add event listeners
+    // Set up regular interval check (every second)
+    const intervalId = setInterval(detectBackgroundColor, 1000);
+
+    // Add event listeners for immediate updates
     window.addEventListener('scroll', throttledDetect);
     window.addEventListener('load', detectBackgroundColor);
+    window.addEventListener('resize', throttledDetect);
 
     return () => {
+      clearInterval(intervalId);
       window.removeEventListener('scroll', throttledDetect);
       window.removeEventListener('load', detectBackgroundColor);
+      window.removeEventListener('resize', throttledDetect);
     };
-  }, [elementRef]);
+  }, [elementRef]); // Only elementRef as dependency
 
   return isDarkBackground;
 }
