@@ -40,7 +40,7 @@ export default function Header() {
 
           <div className="flex-shrink-0">
             <Link
-              href="/dev"
+              href="https://crystallized.sh"
               className={`flex items-center text-sm font-bold ${textColor} ${hoverColor} transition-colors`}
             >
               DEV WEBSITE
