@@ -16,19 +16,24 @@ export default function Header() {
   const borderColor = isDarkBackground ? "border-gray-600" : "border-gray-300";
 
   return (
-    <header ref={headerRef} className="fixed top-0 z-50 w-full backdrop-blur-sm">
+    <header
+      ref={headerRef}
+      className="fixed top-0 z-50 w-full backdrop-blur-sm"
+      style={{
+        WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+        maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)"
+      }}
+    >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex-shrink-0">
           <Link href="/public" className={`text-xl tracking-tight ${textColor}`}>
-            Crystallized Gallery
+            Crystal's Gallery
           </Link>
         </div>
 
         <div className="ml-auto flex items-center space-x-6">
           <div className="hidden md:flex space-x-8">
-            <NavLink href="/projects" text="PROJECTS" textColor={textColor} hoverColor={hoverColor}/>
             <NavLink href="/about" text="ABOUT" textColor={textColor} hoverColor={hoverColor}/>
-            <NavLink href="/contact" text="CONTACT" textColor={textColor} hoverColor={hoverColor}/>
           </div>
 
           <div className={`hidden md:block h-6 border-l ${borderColor}`}/>
